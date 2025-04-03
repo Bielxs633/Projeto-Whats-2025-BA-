@@ -9,16 +9,21 @@
     <script src="script.js" defer></script>
 </head>
 <body>
+    <!-- Container principal do aplicativo -->
     <div class="whatsapp-container">
-        <!-- Sidebar -->
+        <!-- Barra lateral com lista de conversas -->
         <div class="sidebar active" id="sidebar">
             <div class="header">
                 <h2>Conversas</h2>
                 <div class="header-icons">
+                    <!-- Ícone de pesquisa nas mensagens -->
                     <i class="fas fa-search" id="search-messages"></i>
+                    <!-- Ícone de menu -->
                     <i class="fas fa-ellipsis-v" id="menu-toggle"></i>
                 </div>
             </div>
+            
+            <!-- Seletor de usuário -->
             <div class="user-selector">
                 <select id="user-switcher">
                     <option value="11987876567">Ricardo da Silva</option>
@@ -27,16 +32,21 @@
                     <option value="1194457796">Jonathan Xavier</option>
                 </select>
             </div>
+            
+            <!-- Barra de pesquisa de contatos -->
             <div class="search">
                 <input type="text" class="search-input" placeholder="Pesquisar ou começar uma nova conversa">
             </div>
+            
+            <!-- Lista de contatos -->
             <div class="contacts" id="contacts">
-                <!-- Contatos serão carregados aqui via JS -->
+                <!-- Contatos serão carregados aqui pelo JavaScript -->
             </div>
         </div>
 
-        <!-- Chat -->
+        <!-- Área de chat -->
         <div class="chat" id="chat">
+            <!-- Cabeçalho do chat -->
             <div class="chat-header">
                 <div class="chat-header-avatar" id="current-contact-avatar">W</div>
                 <div class="chat-header-info">
@@ -44,22 +54,30 @@
                     <div class="chat-header-status" id="current-contact-status">Selecione um contato</div>
                 </div>
             </div>
+            
+            <!-- Área de mensagens -->
             <div class="messages" id="messages">
-                <!-- Mensagens serão carregadas aqui via JS -->
+                <!-- Mensagens serão carregadas aqui pelo JavaScript -->
             </div>
+            
+            <!-- Área de digitação de mensagens -->
             <div class="input-area">
                 <div class="input-icons">
+                    <!-- Ícone de emoji -->
                     <i class="far fa-smile"></i>
+                    <!-- Ícone de anexo -->
                     <i class="fas fa-paperclip"></i>
                 </div>
+                <!-- Campo para digitar mensagem -->
                 <input type="text" class="message-input" placeholder="Digite uma mensagem">
+                <!-- Botão de enviar -->
                 <button class="send-button">
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </div>
         </div>
 
-        <!-- Profile -->
+        <!-- Perfil do usuário -->
         <div class="profile" id="profile">
             <div class="profile-header">
                 <div class="profile-avatar" id="profile-avatar">W</div>
@@ -79,4 +97,4 @@
         </div>
     </div>
 </body>
-</html> 
+</html>
