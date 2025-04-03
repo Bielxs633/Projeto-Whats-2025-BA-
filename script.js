@@ -1,187 +1,334 @@
-'use strict'
+'use strict';
 
 document.addEventListener('DOMContentLoaded', function() {
     // Elementos do DOM
+    const sidebar = document.getElementById('sidebar');
+    const chat = document.getElementById('chat');
+    const profile = document.getElementById('profile');
     const contactsContainer = document.getElementById('contacts');
     const messagesContainer = document.getElementById('messages');
     const currentContactName = document.getElementById('current-contact-name');
     const currentContactAvatar = document.getElementById('current-contact-avatar');
     const currentContactStatus = document.getElementById('current-contact-status');
+    const profileName = document.getElementById('profile-name');
+    const profileAvatar = document.getElementById('profile-avatar');
+    const profileStatus = document.getElementById('profile-status');
+    const profileAbout = document.getElementById('profile-about');
+    const profilePhone = document.getElementById('profile-phone');
     const messageInput = document.querySelector('.message-input');
     const sendButton = document.querySelector('.send-button');
     const searchInput = document.querySelector('.search-input');
+    const userSwitcher = document.getElementById('user-switcher');
+    const searchMessagesBtn = document.getElementById('search-messages');
+    const menuToggle = document.getElementById('menu-toggle');
+
+    // Adiciona o botão de modo escuro
+    const darkModeToggle = document.createElement('div');
+    darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+    darkModeToggle.className = 'dark-mode-toggle';
+    darkModeToggle.title = 'Alternar modo escuro';
+    document.querySelector('.header-icons').prepend(darkModeToggle);
 
     // Variáveis de estado
     let currentUser = null;
     let currentContact = null;
     let allContacts = [];
     let filteredContacts = [];
+    let currentUserPhone = '11987876567';
+    let isDarkMode = localStorage.getItem('whatsappDarkMode') === 'true';
+    let isSearchActive = false;
 
-    // 1. Carrega os dados do usuário principal
-    async function loadInitialData() {
+    // Aplica o modo escuro se necessário
+    if (isDarkMode) {
+        document.body.classList.add('dark-mode');
+        darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+    }
+
+    // Função para mostrar a tela inicial
+    function showWelcomeScreen() {
+        messagesContainer.innerHTML = `
+            <div class="welcome-screen">
+                <div class="welcome-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h2>WhatsApp Web</h2>
+                <p>Selecione uma conversa para começar a enviar mensagens</p>
+                <div class="welcome-hint">
+                    <small>Clique em qualquer área vazia para voltar a esta tela</small>
+                </div>
+            </div>
+        `;
+        currentContactName.textContent = 'WhatsApp';
+        currentContactAvatar.textContent = 'W';
+        currentContactStatus.textContent = 'Selecione um contato';
+    }
+
+    // Funções para consumir a API
+    async function fetchUserData(phone) {
         try {
-            // Carrega o usuário principal (Ricardo da Silva como exemplo)
-            const userResponse = await fetch('http://localhost:3030/v1/whatsapp/user/11987876567');
-            const userData = await userResponse.json();
-            
-            // Carrega o perfil do usuário
-            const profileResponse = await fetch('http://localhost:3030/v1/whatsapp/user/profile/11987876567');
-            const profileData = await profileResponse.json();
-            
-            currentUser = {
-                ...userData,
-                ...profileData
-            };
-            
-            updateProfileInfo(currentUser);
-            loadContacts();
-            
+            const response = await fetch(`http://localhost:3030/v1/whatsapp/user/${phone}`);
+            if (!response.ok) throw new Error('Erro ao carregar dados do usuário');
+            return await response.json();
         } catch (error) {
-            console.error('Erro ao carregar dados iniciais:', error);
-            alert('Erro ao carregar dados. Verifique o console para detalhes.');
+            console.error('Erro fetchUserData:', error);
+            return null;
         }
     }
 
-    // 2. Carrega a lista de contatos
+    async function fetchUserProfile(phone) {
+        try {
+            const response = await fetch(`http://localhost:3030/v1/whatsapp/user/profile/${phone}`);
+            if (!response.ok) throw new Error('Erro ao carregar perfil');
+            return await response.json();
+        } catch (error) {
+            console.error('Erro fetchUserProfile:', error);
+            return null;
+        }
+    }
+
+    async function fetchUserContacts(phone) {
+        try {
+            const response = await fetch(`http://localhost:3030/v1/whatsapp/contatos/${phone}`);
+            if (!response.ok) throw new Error('Erro ao carregar contatos');
+            return await response.json();
+        } catch (error) {
+            console.error('Erro fetchUserContacts:', error);
+            return null;
+        }
+    }
+
+    async function fetchConversation(phone, contactName) {
+        try {
+            const response = await fetch(`http://localhost:3030/v1/whatsapp/conversas/usuario?numeroTelefone=${phone}&contato=${encodeURIComponent(contactName)}`);
+            if (!response.ok) throw new Error('Erro ao carregar conversa');
+            return await response.json();
+        } catch (error) {
+            console.error('Erro fetchConversation:', error);
+            return null;
+        }
+    }
+
+    async function searchInMessages(phone, contactName, keyword) {
+        try {
+            const response = await fetch(`http://localhost:3030/v1/whatsapp/conversas?numeroTelefone=${phone}&nomeContato=${encodeURIComponent(contactName)}&palavraChave=${encodeURIComponent(keyword)}`);
+            if (!response.ok) throw new Error('Erro na pesquisa');
+            const data = await response.json();
+            
+            if (data && data.mensagem) {
+                const highlightedMessages = data.mensagem.map(msg => {
+                    const highlightedContent = msg.content.replace(
+                        new RegExp(keyword, 'gi'),
+                        match => `<span class="highlight">${match}</span>`
+                    );
+                    return { ...msg, content: highlightedContent };
+                });
+                return { ...data, mensagem: highlightedMessages };
+            }
+            return data;
+        } catch (error) {
+            console.error('Erro searchInMessages:', error);
+            return null;
+        }
+    }
+
+    // Função para alternar o modo escuro
+    function toggleDarkMode() {
+        isDarkMode = !isDarkMode;
+        document.body.classList.toggle('dark-mode', isDarkMode);
+        darkModeToggle.innerHTML = isDarkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        localStorage.setItem('whatsappDarkMode', isDarkMode);
+    }
+
+    // Função principal para carregar um usuário
+    async function loadUser(phone) {
+        try {
+            contactsContainer.innerHTML = '<div class="loading">Carregando...</div>';
+            showWelcomeScreen();
+            currentContact = null;
+            currentUserPhone = phone;
+            isSearchActive = false;
+            
+            const [userData, userProfile] = await Promise.all([
+                fetchUserData(phone),
+                fetchUserProfile(phone)
+            ]);
+            
+            if (!userData || !userProfile) throw new Error('Dados do usuário não encontrados');
+            
+            currentUser = { ...userData, ...userProfile };
+            updateProfileInfo(currentUser);
+            await loadContacts();
+            
+        } catch (error) {
+            console.error('Erro loadUser:', error);
+            contactsContainer.innerHTML = '<div class="error">Erro ao carregar usuário</div>';
+        }
+    }
+
+    // Carregar contatos do usuário atual
     async function loadContacts() {
         try {
-            const response = await fetch('http://localhost:3030/v1/whatsapp/contatos/11987876567');
-            const contacts = await response.json();
+            const contacts = await fetchUserContacts(currentUserPhone);
+            if (!contacts || !Array.isArray(contacts)) throw new Error('Contatos inválidos');
             
             allContacts = contacts;
             filteredContacts = [...contacts];
-            
             renderContacts(filteredContacts);
             
-            // Carrega a primeira conversa por padrão
-            if (filteredContacts.length > 0) {
-                loadConversation(filteredContacts[0].name);
-            }
-            
         } catch (error) {
-            console.error('Erro ao carregar contatos:', error);
+            console.error('Erro loadContacts:', error);
+            contactsContainer.innerHTML = '<div class="error">Erro ao carregar contatos</div>';
         }
     }
 
-    // 3. Carrega as mensagens de um contato específico
+    // Carregar conversa com um contato específico
     async function loadConversation(contactName) {
         try {
-            const response = await fetch(`http://localhost:3030/v1/whatsapp/conversas/usuario?numeroTelefone=11987876567&contato=${encodeURIComponent(contactName)}`);
-            const conversationData = await response.json();
-            
-            // Encontra o contato completo na lista
             currentContact = allContacts.find(c => c.name === contactName);
+            if (!currentContact) throw new Error('Contato não encontrado');
             
-            if (currentContact && conversationData) {
-                updateCurrentContactInfo(currentContact);
-                renderMessages(conversationData.mensagens || []);
-            }
+            updateCurrentContactInfo(currentContact);
+            
+            const conversation = await fetchConversation(currentUserPhone, contactName);
+            if (!conversation) throw new Error('Conversa não encontrada');
+            
+            isSearchActive = false;
+            renderMessages(conversation.mensagens || []);
             
         } catch (error) {
-            console.error('Erro ao carregar conversa:', error);
+            console.error('Erro loadConversation:', error);
+            messagesContainer.innerHTML = '<div class="error">Erro ao carregar conversa</div>';
         }
     }
 
-    // 4. Renderiza a lista de contatos
+    // Renderizar lista de contatos
     function renderContacts(contacts) {
         contactsContainer.innerHTML = '';
         
+        if (contacts.length === 0) {
+            contactsContainer.innerHTML = '<div class="empty">Nenhum contato encontrado</div>';
+            return;
+        }
+        
         contacts.forEach(contact => {
-            const contactElement = document.createElement('div');
-            contactElement.className = 'contact';
+            const lastMessage = contact.messages && contact.messages.length > 0 
+                ? contact.messages[contact.messages.length - 1].content 
+                : contact.description || 'Sem mensagens';
             
-            // Ínicio do conteúdo do contato
-            let contactHTML = `
+            const lastMessageTime = contact.messages && contact.messages.length > 0 
+                ? contact.messages[contact.messages.length - 1].time 
+                : '';
+            
+            const contactElement = document.createElement('div');
+            contactElement.className = `contact ${currentContact?.name === contact.name ? 'active' : ''}`;
+            contactElement.innerHTML = `
                 <div class="contact-avatar">${contact.name.charAt(0)}</div>
                 <div class="contact-info">
                     <div class="contact-name">${contact.name}</div>
-                    <div class="contact-last-msg">${contact.description || 'Sem descrição'}</div>
+                    <div class="contact-last-msg">${lastMessage}</div>
                 </div>
+                <div class="contact-time">${lastMessageTime}</div>
             `;
             
-            // Se tiver mensagens, mostra a última e o horário
-            if (contact.messages && contact.messages.length > 0) {
-                const lastMsg = contact.messages[contact.messages.length - 1];
-                contactHTML = contactHTML.replace('Sem descrição', lastMsg.content);
-                contactHTML += `<div class="contact-time">${lastMsg.time}</div>`;
-            } else {
-                contactHTML += '<div class="contact-time"></div>';
-            }
-            
-            contactElement.innerHTML = contactHTML;
-            
-            // Evento de clique no contato
-            contactElement.addEventListener('click', () => {
+            contactElement.addEventListener('click', async () => {
                 document.querySelectorAll('.contact').forEach(c => c.classList.remove('active'));
                 contactElement.classList.add('active');
-                loadConversation(contact.name);
+                await loadConversation(contact.name);
+                
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('active');
+                    chat.classList.add('active');
+                }
             });
             
             contactsContainer.appendChild(contactElement);
         });
     }
 
-    // 5. Renderiza as mensagens
-    function renderMessages(messages) {
+    // Renderizar mensagens
+    function renderMessages(messages, isSearchResult = false) {
         messagesContainer.innerHTML = '';
+        isSearchActive = isSearchResult;
+        
+        if (messages.length === 0) {
+            messagesContainer.innerHTML = '<div class="empty">Nenhuma mensagem encontrada</div>';
+            return;
+        }
+        
+        if (isSearchResult) {
+            const searchHeader = document.createElement('div');
+            searchHeader.className = 'search-results-header';
+            searchHeader.textContent = `Resultados da pesquisa (${messages.length})`;
+            messagesContainer.appendChild(searchHeader);
+            
+            const backButton = document.createElement('div');
+            backButton.className = 'back-button';
+            backButton.innerHTML = '<i class="fas fa-arrow-left"></i> Voltar para conversa';
+            backButton.addEventListener('click', () => {
+                if (currentContact) loadConversation(currentContact.name);
+            });
+            messagesContainer.appendChild(backButton);
+        }
         
         messages.forEach(msg => {
             const messageElement = document.createElement('div');
             messageElement.className = `message ${msg.sender === 'me' ? 'sent' : 'received'}`;
-            
             messageElement.innerHTML = `
                 <div class="message-bubble">${msg.content}</div>
-                <div class="message-time">${msg.time}</div>
+                <div class="message-time">
+                    ${msg.time} ${msg.sender === 'me' ? '✓✓' : ''}
+                </div>
             `;
-            
             messagesContainer.appendChild(messageElement);
         });
         
-        // Rolagem para a última mensagem
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    // 6. Atualiza as informações do contato atual
+    // Atualizar informações do contato atual
     function updateCurrentContactInfo(contact) {
         currentContactName.textContent = contact.name;
         currentContactAvatar.textContent = contact.name.charAt(0);
         currentContactStatus.textContent = contact.description || 'Online';
     }
 
-    // 7. Atualiza o perfil do usuário
+    // Atualizar perfil do usuário
     function updateProfileInfo(user) {
-        document.getElementById('profile-name').textContent = user.account || 'Usuário';
-        document.getElementById('profile-avatar').textContent = (user.account || 'U').charAt(0);
-        document.getElementById('profile-status').textContent = user.nickname || 'Online';
-        document.getElementById('profile-about').textContent = user.inicio ? `Usuário desde ${user.inicio}` : 'Sem informação';
-        document.getElementById('profile-phone').textContent = user.contato || 'Número não disponível';
+        profileName.textContent = user.account || user.nickname || 'Usuário';
+        profileAvatar.textContent = (user.account || user.nickname || 'U').charAt(0);
+        profileStatus.textContent = user.nickname || 'Online';
+        profileAbout.textContent = user.inicio ? `Usuário desde ${user.inicio}` : 'Sem informação';
+        profilePhone.textContent = user.contato || user.number || 'Número não disponível';
     }
 
-    // 8. Função para enviar mensagem (simulada)
-    function sendMessage() {
+    // Enviar mensagem (simulação)
+    async function sendMessage() {
         const messageText = messageInput.value.trim();
-        if (messageText && currentContact) {
-            const newMessage = {
-                sender: 'me',
-                content: messageText,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            };
-            
-            // Adiciona a mensagem na UI (em uma aplicação real, enviaria para a API)
-            const messageElement = document.createElement('div');
-            messageElement.className = 'message sent';
-            messageElement.innerHTML = `
-                <div class="message-bubble">${messageText}</div>
-                <div class="message-time">${newMessage.time}</div>
-            `;
-            
-            messagesContainer.appendChild(messageElement);
-            messageInput.value = '';
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
+        if (!messageText || !currentContact || isSearchActive) return;
+        
+        const newMessage = {
+            sender: 'me',
+            content: messageText,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message sent';
+        messageElement.innerHTML = `
+            <div class="message-bubble">${messageText}</div>
+            <div class="message-time">${newMessage.time} ✓✓</div>
+        `;
+        
+        messagesContainer.appendChild(messageElement);
+        messageInput.value = '';
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    // Event listeners
+    // Event Listeners
+    darkModeToggle.addEventListener('click', toggleDarkMode);
+    
+    userSwitcher.addEventListener('change', (e) => loadUser(e.target.value));
+    
     sendButton.addEventListener('click', sendMessage);
     messageInput.addEventListener('keypress', (e) => e.key === 'Enter' && sendMessage());
     
@@ -193,7 +340,40 @@ document.addEventListener('DOMContentLoaded', function() {
         );
         renderContacts(filteredContacts);
     });
+    
+    searchMessagesBtn.addEventListener('click', async () => {
+        if (!currentContact) {
+            alert('Selecione um contato primeiro');
+            return;
+        }
+        
+        const keyword = prompt('Digite a palavra-chave para pesquisar:');
+        if (!keyword) return;
+        
+        const results = await searchInMessages(currentUserPhone, currentContact.name, keyword);
+        if (results && results.mensagem) {
+            renderMessages(results.mensagem, true);
+        } else {
+            alert('Nenhum resultado encontrado');
+        }
+    });
+    
+    menuToggle.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+            profile.classList.toggle('active');
+            chat.classList.toggle('active');
+        }
+    });
 
-    // Inicializa o app
-    loadInitialData();
+    // Voltar para tela inicial ao clicar em área vazia
+    messagesContainer.addEventListener('click', (e) => {
+        if (e.target === messagesContainer && currentContact) {
+            showWelcomeScreen();
+            currentContact = null;
+            document.querySelectorAll('.contact').forEach(c => c.classList.remove('active'));
+        }
+    });
+
+    // Inicialização
+    loadUser(currentUserPhone);
 });

@@ -10,11 +10,25 @@
     --border-color: #ddd;
 }
 
+/* Modo Escuro */
+body.dark-mode {
+    --primary-color: #c62828;
+    --primary-dark: #8e0000;
+    --primary-light: #ff5f52;
+    --background: #121212;
+    --chat-background: #1e1e1e;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --text-light: #ffffff;
+    --border-color: #333;
+}
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 body {
@@ -26,23 +40,21 @@ body {
 }
 
 .whatsapp-container {
-    width: 90%;
-    max-width: 1200px;
-    height: 90vh;
+    width: 100%;
+    height: 100vh;
     display: flex;
-    background-color: #fff;
+    background-color: var(--background);
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
-    overflow: hidden;
 }
 
 /* Sidebar */
 .sidebar {
-    width: 30%;
+    width: 35%;
+    min-width: 300px;
     border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
-    background-color: #f8f9fa;
+    background-color: var(--background);
 }
 
 /* Header */
@@ -69,10 +81,32 @@ body {
     cursor: pointer;
 }
 
+.dark-mode-toggle {
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: var(--text-light);
+    padding: 5px;
+}
+
+/* User Selector */
+.user-selector {
+    padding: 10px;
+    background-color: var(--primary-dark);
+}
+
+#user-switcher {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: none;
+    background-color: var(--background);
+    color: var(--text-primary);
+}
+
 /* Search */
 .search {
     padding: 8px 12px;
-    background-color: #fff;
+    background-color: var(--background);
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -81,9 +115,10 @@ body {
     padding: 8px 12px;
     border-radius: 18px;
     border: none;
-    background-color: #f0f2f5;
+    background-color: var(--chat-background);
     font-size: 14px;
     outline: none;
+    color: var(--text-primary);
 }
 
 /* Contacts */
@@ -94,26 +129,34 @@ body {
 
 .contact {
     display: flex;
-    padding: 12px 16px;
+    padding: 12px 10px;
     border-bottom: 1px solid var(--border-color);
     cursor: pointer;
     transition: background-color 0.2s;
+    background-color: var(--background);
 }
 
 .contact:hover {
-    background-color: #f5f5f5;
+    background-color: var(--chat-background);
 }
 
 .contact.active {
-    background-color: var(--chat-background);
+    background-color: var(--primary-light);
+    color: var(--text-light);
+}
+
+.contact.active .contact-name,
+.contact.active .contact-last-msg,
+.contact.active .contact-time {
+    color: var(--text-light);
 }
 
 .contact-avatar {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background-color: var(--primary-light);
-    margin-right: 12px;
+    background-color: var(--primary-color);
+    margin-right: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -126,12 +169,16 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    min-width: 0;
 }
 
 .contact-name {
     font-weight: 500;
     margin-bottom: 4px;
     color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .contact-last-msg {
@@ -145,6 +192,7 @@ body {
 .contact-time {
     font-size: 12px;
     color: var(--text-secondary);
+    margin-left: 5px;
 }
 
 /* Chat */
@@ -155,7 +203,7 @@ body {
 }
 
 .chat-header {
-    background-color: #ededed;
+    background-color: var(--chat-background);
     padding: 12px 16px;
     display: flex;
     align-items: center;
@@ -177,15 +225,23 @@ body {
 
 .chat-header-info {
     flex: 1;
+    min-width: 0;
 }
 
 .chat-header-name {
     font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-primary);
 }
 
 .chat-header-status {
     font-size: 13px;
     color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .chat-header-icons {
@@ -201,50 +257,59 @@ body {
 /* Messages */
 .messages {
     flex: 1;
-    padding: 16px;
+    padding: 10px 5px;
     overflow-y: auto;
     background-image: url('https://web.whatsapp.com/img/bg-chat-tile-light_a4be512e7195b6b733d9110b408f075d.png');
     background-repeat: repeat;
     background-color: var(--chat-background);
+    display: flex;
+    flex-direction: column;
+}
+
+body.dark-mode .messages {
+    background-image: url('https://web.whatsapp.com/img/bg-chat-tile-dark_686b98c9fdffef3f.png');
 }
 
 .message {
-    margin-bottom: 16px;
+    max-width: 85%;
+    margin-bottom: 8px;
     display: flex;
     flex-direction: column;
-    max-width: 70%;
 }
 
 .message.received {
-    align-items: flex-start;
+    align-self: flex-start;
+    margin-left: 5px;
 }
 
 .message.sent {
-    align-items: flex-end;
+    align-self: flex-end;
+    margin-right: 5px;
 }
 
 .message-bubble {
     padding: 8px 12px;
-    border-radius: 8px;
-    margin-bottom: 4px;
+    border-radius: 18px;
     position: relative;
     word-wrap: break-word;
 }
 
 .message.received .message-bubble {
-    background-color: #fff;
-    border-top-left-radius: 0;
+    background-color: var(--background);
+    border-radius: 0 18px 18px 18px;
+    color: var(--text-primary);
 }
 
 .message.sent .message-bubble {
     background-color: var(--primary-light);
     color: var(--text-light);
-    border-top-right-radius: 0;
+    border-radius: 18px 0 18px 18px;
 }
 
 .message-time {
     font-size: 11px;
     color: var(--text-secondary);
+    margin-top: 2px;
     align-self: flex-end;
 }
 
@@ -252,10 +317,46 @@ body {
     color: rgba(255, 255, 255, 0.8);
 }
 
+.empty {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-secondary);
+}
+
+.highlight {
+    background-color: rgb(255, 0, 0);
+    color: black;
+    padding: 0 2px;
+    border-radius: 3px;
+}
+
+.search-results-header {
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    color: var(--primary-color);
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--background);
+}
+
+.back-button {
+    padding: 10px;
+    text-align: center;
+    color: var(--primary-color);
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 10px;
+    background-color: var(--background);
+}
+
+.back-button:hover {
+    background-color: var(--chat-background);
+}
+
 /* Input */
 .input-area {
-    background-color: #f0f2f5;
-    padding: 12px 16px;
+    background-color: var(--chat-background);
+    padding: 8px 10px;
     display: flex;
     align-items: center;
     border-top: 1px solid var(--border-color);
@@ -274,11 +375,13 @@ body {
 
 .message-input {
     flex: 1;
-    padding: 10px 12px;
+    padding: 8px 12px;
     border-radius: 20px;
     border: none;
     outline: none;
     font-size: 14px;
+    background-color: var(--background);
+    color: var(--text-primary);
 }
 
 .send-button {
@@ -298,9 +401,10 @@ body {
 /* Profile */
 .profile {
     display: none;
-    width: 30%;
+    width: 35%;
+    min-width: 300px;
     border-left: 1px solid var(--border-color);
-    background-color: #f8f9fa;
+    background-color: var(--background);
     flex-direction: column;
 }
 
@@ -319,7 +423,7 @@ body {
     position: absolute;
     bottom: -40px;
     left: 16px;
-    border: 3px solid #f8f9fa;
+    border: 3px solid var(--background);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -332,11 +436,13 @@ body {
     font-size: 18px;
     font-weight: 500;
     margin-top: 30px;
+    color: var(--text-light);
 }
 
 .profile-status {
     font-size: 14px;
     margin-top: 4px;
+    color: var(--text-light);
 }
 
 .profile-info {
@@ -365,7 +471,6 @@ body {
     .whatsapp-container {
         width: 100%;
         height: 100vh;
-        border-radius: 0;
     }
 
     .sidebar {
@@ -379,6 +484,7 @@ body {
 
     .chat {
         display: none;
+        width: 100%;
     }
 
     .chat.active {
@@ -390,9 +496,50 @@ body {
         right: 0;
         height: 100%;
         display: none;
+        width: 85%;
     }
 
     .profile.active {
         display: flex;
     }
 }
+
+/* Estilos para a tela inicial */
+.welcome-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 20px;
+}
+
+.welcome-icon {
+    font-size: 5rem;
+    color: var(--primary-light);
+    margin-bottom: 20px;
+}
+
+.welcome-screen h2 {
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+.welcome-screen p {
+    margin-bottom: 30px;
+    max-width: 80%;
+}
+
+.welcome-hint {
+    margin-top: 30px;
+    padding: 10px;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+/* Garante que a área de mensagens seja clicável */
+.messages {
+    cursor: default;
+}   

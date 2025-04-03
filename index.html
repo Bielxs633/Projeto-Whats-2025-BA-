@@ -15,9 +15,17 @@
             <div class="header">
                 <h2>Conversas</h2>
                 <div class="header-icons">
-                    <i class="fas fa-search"></i>
-                    <i class="fas fa-ellipsis-v"></i>
+                    <i class="fas fa-search" id="search-messages"></i>
+                    <i class="fas fa-ellipsis-v" id="menu-toggle"></i>
                 </div>
+            </div>
+            <div class="user-selector">
+                <select id="user-switcher">
+                    <option value="11987876567">Ricardo da Silva</option>
+                    <option value="11966578996">Bernardo Xavier</option>
+                    <option value="11955577796">Sandy Wilstern</option>
+                    <option value="1194457796">Jonathan Xavier</option>
+                </select>
             </div>
             <div class="search">
                 <input type="text" class="search-input" placeholder="Pesquisar ou começar uma nova conversa">
@@ -30,10 +38,10 @@
         <!-- Chat -->
         <div class="chat" id="chat">
             <div class="chat-header">
-                <div class="chat-header-avatar" id="current-contact-avatar">G</div>
+                <div class="chat-header-avatar" id="current-contact-avatar">W</div>
                 <div class="chat-header-info">
-                    <div class="chat-header-name" id="current-contact-name">Gabriel</div>
-                    <div class="chat-header-status" id="current-contact-status">Online</div>
+                    <div class="chat-header-name" id="current-contact-name">WhatsApp</div>
+                    <div class="chat-header-status" id="current-contact-status">Selecione um contato</div>
                 </div>
                 <div class="chat-header-icons">
                     <i class="fas fa-search"></i>
@@ -58,18 +66,18 @@
         <!-- Profile -->
         <div class="profile" id="profile">
             <div class="profile-header">
-                <div class="profile-avatar" id="profile-avatar">G</div>
-                <div class="profile-name" id="profile-name">Gabriel</div>
+                <div class="profile-avatar" id="profile-avatar">W</div>
+                <div class="profile-name" id="profile-name">Usuário</div>
                 <div class="profile-status" id="profile-status">Online</div>
             </div>
             <div class="profile-info">
                 <div class="info-section">
                     <div class="info-title">Sobre</div>
-                    <div class="info-content" id="profile-about">Desenvolvedor da API WhatsApp</div>
+                    <div class="info-content" id="profile-about">Carregando informações...</div>
                 </div>
                 <div class="info-section">
                     <div class="info-title">Telefone</div>
-                    <div class="info-content" id="profile-phone">+55 11 99999-9999</div>
+                    <div class="info-content" id="profile-phone">Número não disponível</div>
                 </div>
             </div>
         </div>
