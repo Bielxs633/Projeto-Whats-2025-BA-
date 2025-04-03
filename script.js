@@ -24,7 +24,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Adiciona o botão de modo escuro
     const darkModeToggle = document.createElement('div');
-    darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+    const darkModeIcon = document.createElement('i');
+    darkModeIcon.className = 'fas fa-moon';
+    darkModeToggle.appendChild(darkModeIcon);
     darkModeToggle.className = 'dark-mode-toggle';
     darkModeToggle.title = 'Alternar modo escuro';
     document.querySelector('.header-icons').prepend(darkModeToggle);
@@ -41,23 +43,44 @@ document.addEventListener('DOMContentLoaded', function() {
     // Aplica o modo escuro se necessário
     if (isDarkMode) {
         document.body.classList.add('dark-mode');
-        darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        darkModeIcon.className = 'fas fa-sun';
     }
 
     // Função para mostrar a tela inicial
     function showWelcomeScreen() {
-        messagesContainer.innerHTML = `
-            <div class="welcome-screen">
-                <div class="welcome-icon">
-                    <i class="fas fa-comments"></i>
-                </div>
-                <h2>WhatsApp Web</h2>
-                <p>Selecione uma conversa para começar a enviar mensagens</p>
-                <div class="welcome-hint">
-                    <small>Clique em qualquer área vazia para voltar a esta tela</small>
-                </div>
-            </div>
-        `;
+        // Limpa o container de forma segura
+        while (messagesContainer.firstChild) {
+            messagesContainer.removeChild(messagesContainer.firstChild);
+        }
+        
+        const welcomeScreen = document.createElement('div');
+        welcomeScreen.className = 'welcome-screen';
+        
+        const welcomeIcon = document.createElement('div');
+        welcomeIcon.className = 'welcome-icon';
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-comments';
+        welcomeIcon.appendChild(icon);
+        
+        const title = document.createElement('h2');
+        title.textContent = 'WhatsApp Web';
+        
+        const message = document.createElement('p');
+        message.textContent = 'Selecione uma conversa para começar a enviar mensagens';
+        
+        const hint = document.createElement('div');
+        hint.className = 'welcome-hint';
+        const hintText = document.createElement('small');
+        hintText.textContent = 'Clique em qualquer área vazia para voltar a esta tela';
+        hint.appendChild(hintText);
+        
+        welcomeScreen.appendChild(welcomeIcon);
+        welcomeScreen.appendChild(title);
+        welcomeScreen.appendChild(message);
+        welcomeScreen.appendChild(hint);
+        
+        messagesContainer.appendChild(welcomeScreen);
+        
         currentContactName.textContent = 'WhatsApp';
         currentContactAvatar.textContent = 'W';
         currentContactStatus.textContent = 'Selecione um contato';
@@ -115,14 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data && data.mensagem) {
-                const highlightedMessages = data.mensagem.map(msg => {
-                    const highlightedContent = msg.content.replace(
-                        new RegExp(keyword, 'gi'),
-                        match => `<span class="highlight">${match}</span>`
-                    );
-                    return { ...msg, content: highlightedContent };
-                });
-                return { ...data, mensagem: highlightedMessages };
+                return data; // Retorna os dados sem modificação, o highlight será feito no render
             }
             return data;
         } catch (error) {
@@ -135,14 +151,23 @@ document.addEventListener('DOMContentLoaded', function() {
     function toggleDarkMode() {
         isDarkMode = !isDarkMode;
         document.body.classList.toggle('dark-mode', isDarkMode);
-        darkModeToggle.innerHTML = isDarkMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+        darkModeIcon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
         localStorage.setItem('whatsappDarkMode', isDarkMode);
     }
 
     // Função principal para carregar um usuário
     async function loadUser(phone) {
         try {
-            contactsContainer.innerHTML = '<div class="loading">Carregando...</div>';
+            // Limpa o container de forma segura
+            while (contactsContainer.firstChild) {
+                contactsContainer.removeChild(contactsContainer.firstChild);
+            }
+            
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'loading';
+            loadingDiv.textContent = 'Carregando...';
+            contactsContainer.appendChild(loadingDiv);
+            
             showWelcomeScreen();
             currentContact = null;
             currentUserPhone = phone;
@@ -161,7 +186,15 @@ document.addEventListener('DOMContentLoaded', function() {
             
         } catch (error) {
             console.error('Erro loadUser:', error);
-            contactsContainer.innerHTML = '<div class="error">Erro ao carregar usuário</div>';
+            // Limpa o container de forma segura
+            while (contactsContainer.firstChild) {
+                contactsContainer.removeChild(contactsContainer.firstChild);
+            }
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = 'Erro ao carregar usuário';
+            contactsContainer.appendChild(errorDiv);
         }
     }
 
@@ -177,7 +210,15 @@ document.addEventListener('DOMContentLoaded', function() {
             
         } catch (error) {
             console.error('Erro loadContacts:', error);
-            contactsContainer.innerHTML = '<div class="error">Erro ao carregar contatos</div>';
+            // Limpa o container de forma segura
+            while (contactsContainer.firstChild) {
+                contactsContainer.removeChild(contactsContainer.firstChild);
+            }
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = 'Erro ao carregar contatos';
+            contactsContainer.appendChild(errorDiv);
         }
     }
 
@@ -197,16 +238,30 @@ document.addEventListener('DOMContentLoaded', function() {
             
         } catch (error) {
             console.error('Erro loadConversation:', error);
-            messagesContainer.innerHTML = '<div class="error">Erro ao carregar conversa</div>';
+            // Limpa o container de forma segura
+            while (messagesContainer.firstChild) {
+                messagesContainer.removeChild(messagesContainer.firstChild);
+            }
+            
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = 'Erro ao carregar conversa';
+            messagesContainer.appendChild(errorDiv);
         }
     }
 
     // Renderizar lista de contatos
     function renderContacts(contacts) {
-        contactsContainer.innerHTML = '';
+        // Limpa o container de forma segura
+        while (contactsContainer.firstChild) {
+            contactsContainer.removeChild(contactsContainer.firstChild);
+        }
         
         if (contacts.length === 0) {
-            contactsContainer.innerHTML = '<div class="empty">Nenhum contato encontrado</div>';
+            const emptyDiv = document.createElement('div');
+            emptyDiv.className = 'empty';
+            emptyDiv.textContent = 'Nenhum contato encontrado';
+            contactsContainer.appendChild(emptyDiv);
             return;
         }
         
@@ -221,14 +276,32 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const contactElement = document.createElement('div');
             contactElement.className = `contact ${currentContact?.name === contact.name ? 'active' : ''}`;
-            contactElement.innerHTML = `
-                <div class="contact-avatar">${contact.name.charAt(0)}</div>
-                <div class="contact-info">
-                    <div class="contact-name">${contact.name}</div>
-                    <div class="contact-last-msg">${lastMessage}</div>
-                </div>
-                <div class="contact-time">${lastMessageTime}</div>
-            `;
+            
+            const contactAvatar = document.createElement('div');
+            contactAvatar.className = 'contact-avatar';
+            contactAvatar.textContent = contact.name.charAt(0);
+            
+            const contactInfo = document.createElement('div');
+            contactInfo.className = 'contact-info';
+            
+            const contactName = document.createElement('div');
+            contactName.className = 'contact-name';
+            contactName.textContent = contact.name;
+            
+            const contactLastMsg = document.createElement('div');
+            contactLastMsg.className = 'contact-last-msg';
+            contactLastMsg.textContent = lastMessage;
+            
+            const contactTime = document.createElement('div');
+            contactTime.className = 'contact-time';
+            contactTime.textContent = lastMessageTime;
+            
+            contactInfo.appendChild(contactName);
+            contactInfo.appendChild(contactLastMsg);
+            
+            contactElement.appendChild(contactAvatar);
+            contactElement.appendChild(contactInfo);
+            contactElement.appendChild(contactTime);
             
             contactElement.addEventListener('click', async () => {
                 document.querySelectorAll('.contact').forEach(c => c.classList.remove('active'));
@@ -245,13 +318,34 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Função para aplicar highlight no texto
+    function applyHighlight(text, keyword) {
+        const parts = text.split(new RegExp(`(${keyword})`, 'gi'));
+        return parts.map((part, index) => {
+            if (part.toLowerCase() === keyword.toLowerCase()) {
+                const highlightSpan = document.createElement('span');
+                highlightSpan.className = 'highlight';
+                highlightSpan.textContent = part;
+                return highlightSpan;
+            }
+            return document.createTextNode(part);
+        });
+    }
+
     // Renderizar mensagens
-    function renderMessages(messages, isSearchResult = false) {
-        messagesContainer.innerHTML = '';
+    function renderMessages(messages, isSearchResult = false, keyword = '') {
+        // Limpa o container de forma segura
+        while (messagesContainer.firstChild) {
+            messagesContainer.removeChild(messagesContainer.firstChild);
+        }
+        
         isSearchActive = isSearchResult;
         
         if (messages.length === 0) {
-            messagesContainer.innerHTML = '<div class="empty">Nenhuma mensagem encontrada</div>';
+            const emptyDiv = document.createElement('div');
+            emptyDiv.className = 'empty';
+            emptyDiv.textContent = 'Nenhuma mensagem encontrada';
+            messagesContainer.appendChild(emptyDiv);
             return;
         }
         
@@ -263,22 +357,51 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const backButton = document.createElement('div');
             backButton.className = 'back-button';
-            backButton.innerHTML = '<i class="fas fa-arrow-left"></i> Voltar para conversa';
+            
+            const backIcon = document.createElement('i');
+            backIcon.className = 'fas fa-arrow-left';
+            
+            backButton.appendChild(backIcon);
+            backButton.appendChild(document.createTextNode(' Voltar para conversa'));
+            
             backButton.addEventListener('click', () => {
                 if (currentContact) loadConversation(currentContact.name);
             });
+            
             messagesContainer.appendChild(backButton);
         }
         
         messages.forEach(msg => {
             const messageElement = document.createElement('div');
             messageElement.className = `message ${msg.sender === 'me' ? 'sent' : 'received'}`;
-            messageElement.innerHTML = `
-                <div class="message-bubble">${msg.content}</div>
-                <div class="message-time">
-                    ${msg.time} ${msg.sender === 'me' ? '✓✓' : ''}
-                </div>
-            `;
+            
+            const messageBubble = document.createElement('div');
+            messageBubble.className = 'message-bubble';
+            
+            // Aplica highlight se for uma pesquisa
+            if (isSearchResult && keyword) {
+                const highlightedParts = applyHighlight(msg.content, keyword);
+                highlightedParts.forEach(part => {
+                    messageBubble.appendChild(part);
+                });
+            } else {
+                messageBubble.textContent = msg.content;
+            }
+            
+            const messageTime = document.createElement('div');
+            messageTime.className = 'message-time';
+            
+            const timeText = document.createTextNode(msg.time);
+            messageTime.appendChild(timeText);
+            
+            if (msg.sender === 'me') {
+                const checkMarks = document.createTextNode(' ✓✓');
+                messageTime.appendChild(checkMarks);
+            }
+            
+            messageElement.appendChild(messageBubble);
+            messageElement.appendChild(messageTime);
+            
             messagesContainer.appendChild(messageElement);
         });
         
@@ -314,10 +437,17 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const messageElement = document.createElement('div');
         messageElement.className = 'message sent';
-        messageElement.innerHTML = `
-            <div class="message-bubble">${messageText}</div>
-            <div class="message-time">${newMessage.time} ✓✓</div>
-        `;
+        
+        const messageBubble = document.createElement('div');
+        messageBubble.className = 'message-bubble';
+        messageBubble.textContent = messageText;
+        
+        const messageTime = document.createElement('div');
+        messageTime.className = 'message-time';
+        messageTime.textContent = `${newMessage.time} ✓✓`;
+        
+        messageElement.appendChild(messageBubble);
+        messageElement.appendChild(messageTime);
         
         messagesContainer.appendChild(messageElement);
         messageInput.value = '';
@@ -325,11 +455,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Função para renderizar resultados de busca
-    function renderSearchResults(messages, container) {
-        container.innerHTML = '';
+    function renderSearchResults(messages, container, keyword) {
+        // Limpa o container de forma segura
+        while (container.firstChild) {
+            container.removeChild(container.firstChild);
+        }
         
         if (messages.length === 0) {
-            container.innerHTML = '<div class="empty">Nenhum resultado encontrado</div>';
+            const emptyDiv = document.createElement('div');
+            emptyDiv.className = 'empty';
+            emptyDiv.textContent = 'Nenhum resultado encontrado';
+            container.appendChild(emptyDiv);
             return;
         }
         
@@ -341,12 +477,30 @@ document.addEventListener('DOMContentLoaded', function() {
         messages.forEach(msg => {
             const messageElement = document.createElement('div');
             messageElement.className = `search-result ${msg.sender === 'me' ? 'sent' : 'received'}`;
-            messageElement.innerHTML = `
-                <div class="message-bubble">${msg.content}</div>
-                <div class="message-time">
-                    ${msg.time} ${msg.sender === 'me' ? '✓✓' : ''}
-                </div>
-            `;
+            
+            const messageBubble = document.createElement('div');
+            messageBubble.className = 'message-bubble';
+            
+            // Aplica highlight nas palavras-chave
+            const highlightedParts = applyHighlight(msg.content, keyword);
+            highlightedParts.forEach(part => {
+                messageBubble.appendChild(part);
+            });
+            
+            const messageTime = document.createElement('div');
+            messageTime.className = 'message-time';
+            
+            const timeText = document.createTextNode(msg.time);
+            messageTime.appendChild(timeText);
+            
+            if (msg.sender === 'me') {
+                const checkMarks = document.createTextNode(' ✓✓');
+                messageTime.appendChild(checkMarks);
+            }
+            
+            messageElement.appendChild(messageBubble);
+            messageElement.appendChild(messageTime);
+            
             container.appendChild(messageElement);
         });
     }
@@ -370,54 +524,80 @@ document.addEventListener('DOMContentLoaded', function() {
     
     searchMessagesBtn.addEventListener('click', async () => {
         if (!currentContact) {
-            // Cria um elemento de aviso na página em vez de usar alert
+            // Cria um elemento de aviso na página
             const warning = document.createElement('div');
             warning.className = 'empty';
             warning.textContent = 'Selecione um contato primeiro';
-            messagesContainer.innerHTML = '';
+            
+            // Limpa o container de forma segura
+            while (messagesContainer.firstChild) {
+                messagesContainer.removeChild(messagesContainer.firstChild);
+            }
+            
             messagesContainer.appendChild(warning);
             return;
         }
         
         // Cria um elemento de busca na página
-        messagesContainer.innerHTML = '';
+        while (messagesContainer.firstChild) {
+            messagesContainer.removeChild(messagesContainer.firstChild);
+        }
         
         const searchBox = document.createElement('div');
         searchBox.className = 'search-box';
-        searchBox.innerHTML = `
-            <div class="search-header">
-                <i class="fas fa-arrow-left back-button"></i>
-                <input type="text" class="search-keyword-input" placeholder="Digite a palavra-chave...">
-                <button class="search-button">Buscar</button>
-            </div>
-            <div class="search-results-container"></div>
-        `;
+        
+        const searchHeader = document.createElement('div');
+        searchHeader.className = 'search-header';
+        
+        const backButton = document.createElement('i');
+        backButton.className = 'fas fa-arrow-left back-button';
+        
+        const searchKeywordInput = document.createElement('input');
+        searchKeywordInput.type = 'text';
+        searchKeywordInput.className = 'search-keyword-input';
+        searchKeywordInput.placeholder = 'Digite a palavra-chave...';
+        
+        const searchButton = document.createElement('button');
+        searchButton.className = 'search-button';
+        searchButton.textContent = 'Buscar';
+        
+        const resultsContainer = document.createElement('div');
+        resultsContainer.className = 'search-results-container';
+        
+        searchHeader.appendChild(backButton);
+        searchHeader.appendChild(searchKeywordInput);
+        searchHeader.appendChild(searchButton);
+        
+        searchBox.appendChild(searchHeader);
+        searchBox.appendChild(resultsContainer);
         
         messagesContainer.appendChild(searchBox);
-        
-        const backButton = searchBox.querySelector('.back-button');
-        const searchInput = searchBox.querySelector('.search-keyword-input');
-        const searchButton = searchBox.querySelector('.search-button');
-        const resultsContainer = searchBox.querySelector('.search-results-container');
         
         backButton.addEventListener('click', () => {
             if (currentContact) loadConversation(currentContact.name);
         });
         
         const performSearch = async () => {
-            const keyword = searchInput.value.trim();
+            const keyword = searchKeywordInput.value.trim();
             if (!keyword) return;
             
             const results = await searchInMessages(currentUserPhone, currentContact.name, keyword);
             if (results && results.mensagem) {
-                renderSearchResults(results.mensagem, resultsContainer);
+                renderSearchResults(results.mensagem, resultsContainer, keyword);
             } else {
-                resultsContainer.innerHTML = '<div class="empty">Nenhum resultado encontrado</div>';
+                while (resultsContainer.firstChild) {
+                    resultsContainer.removeChild(resultsContainer.firstChild);
+                }
+                
+                const emptyDiv = document.createElement('div');
+                emptyDiv.className = 'empty';
+                emptyDiv.textContent = 'Nenhum resultado encontrado';
+                resultsContainer.appendChild(emptyDiv);
             }
         };
         
         searchButton.addEventListener('click', performSearch);
-        searchInput.addEventListener('keypress', (e) => e.key === 'Enter' && performSearch());
+        searchKeywordInput.addEventListener('keypress', (e) => e.key === 'Enter' && performSearch());
     });
     
     menuToggle.addEventListener('click', () => {
