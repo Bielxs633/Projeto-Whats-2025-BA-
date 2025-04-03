@@ -324,6 +324,33 @@ document.addEventListener('DOMContentLoaded', function() {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
+    // Função para renderizar resultados de busca
+    function renderSearchResults(messages, container) {
+        container.innerHTML = '';
+        
+        if (messages.length === 0) {
+            container.innerHTML = '<div class="empty">Nenhum resultado encontrado</div>';
+            return;
+        }
+        
+        const resultsHeader = document.createElement('div');
+        resultsHeader.className = 'search-results-header';
+        resultsHeader.textContent = `Resultados encontrados: ${messages.length}`;
+        container.appendChild(resultsHeader);
+        
+        messages.forEach(msg => {
+            const messageElement = document.createElement('div');
+            messageElement.className = `search-result ${msg.sender === 'me' ? 'sent' : 'received'}`;
+            messageElement.innerHTML = `
+                <div class="message-bubble">${msg.content}</div>
+                <div class="message-time">
+                    ${msg.time} ${msg.sender === 'me' ? '✓✓' : ''}
+                </div>
+            `;
+            container.appendChild(messageElement);
+        });
+    }
+
     // Event Listeners
     darkModeToggle.addEventListener('click', toggleDarkMode);
     
@@ -343,34 +370,60 @@ document.addEventListener('DOMContentLoaded', function() {
     
     searchMessagesBtn.addEventListener('click', async () => {
         if (!currentContact) {
-            alert('Selecione um contato primeiro');
+            // Cria um elemento de aviso na página em vez de usar alert
+            const warning = document.createElement('div');
+            warning.className = 'empty';
+            warning.textContent = 'Selecione um contato primeiro';
+            messagesContainer.innerHTML = '';
+            messagesContainer.appendChild(warning);
             return;
         }
         
-        const keyword = prompt('Digite a palavra-chave para pesquisar:');
-        if (!keyword) return;
+        // Cria um elemento de busca na página
+        messagesContainer.innerHTML = '';
         
-        const results = await searchInMessages(currentUserPhone, currentContact.name, keyword);
-        if (results && results.mensagem) {
-            renderMessages(results.mensagem, true);
-        } else {
-            alert('Nenhum resultado encontrado');
-        }
+        const searchBox = document.createElement('div');
+        searchBox.className = 'search-box';
+        searchBox.innerHTML = `
+            <div class="search-header">
+                <i class="fas fa-arrow-left back-button"></i>
+                <input type="text" class="search-keyword-input" placeholder="Digite a palavra-chave...">
+                <button class="search-button">Buscar</button>
+            </div>
+            <div class="search-results-container"></div>
+        `;
+        
+        messagesContainer.appendChild(searchBox);
+        
+        const backButton = searchBox.querySelector('.back-button');
+        const searchInput = searchBox.querySelector('.search-keyword-input');
+        const searchButton = searchBox.querySelector('.search-button');
+        const resultsContainer = searchBox.querySelector('.search-results-container');
+        
+        backButton.addEventListener('click', () => {
+            if (currentContact) loadConversation(currentContact.name);
+        });
+        
+        const performSearch = async () => {
+            const keyword = searchInput.value.trim();
+            if (!keyword) return;
+            
+            const results = await searchInMessages(currentUserPhone, currentContact.name, keyword);
+            if (results && results.mensagem) {
+                renderSearchResults(results.mensagem, resultsContainer);
+            } else {
+                resultsContainer.innerHTML = '<div class="empty">Nenhum resultado encontrado</div>';
+            }
+        };
+        
+        searchButton.addEventListener('click', performSearch);
+        searchInput.addEventListener('keypress', (e) => e.key === 'Enter' && performSearch());
     });
     
     menuToggle.addEventListener('click', () => {
         if (window.innerWidth <= 768) {
             profile.classList.toggle('active');
             chat.classList.toggle('active');
-        }
-    });
-
-    // Voltar para tela inicial ao clicar em área vazia
-    messagesContainer.addEventListener('click', (e) => {
-        if (e.target === messagesContainer && currentContact) {
-            showWelcomeScreen();
-            currentContact = null;
-            document.querySelectorAll('.contact').forEach(c => c.classList.remove('active'));
         }
     });
 

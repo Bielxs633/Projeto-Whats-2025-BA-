@@ -68,17 +68,18 @@ body {
 }
 
 .header h2 {
-    font-size: 20px;
+    font-size: 35px;
     font-weight: 500;
 }
 
 .header-icons {
     display: flex;
-    gap: 20px;
+    gap: 25px;
 }
 
 .header-icons i {
     cursor: pointer;
+    font-size: 25px;
 }
 
 .dark-mode-toggle {
@@ -353,6 +354,91 @@ body.dark-mode .messages {
     background-color: var(--chat-background);
 }
 
+/* Search Box */
+.search-box {
+    background-color: var(--background);
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.search-header {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.search-keyword-input {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 18px;
+    border: none;
+    background-color: var(--chat-background);
+    font-size: 14px;
+    outline: none;
+    color: var(--text-primary);
+}
+
+.search-button {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+.search-results-container {
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+}
+
+.search-result {
+    max-width: 85%;
+    margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+}
+
+.search-result.received {
+    align-self: flex-start;
+    margin-left: 5px;
+}
+
+.search-result.sent {
+    align-self: flex-end;
+    margin-right: 5px;
+}
+
+.search-result .message-bubble {
+    padding: 8px 12px;
+    border-radius: 18px;
+    position: relative;
+    word-wrap: break-word;
+}
+
+.search-result.received .message-bubble {
+    background-color: var(--background);
+    border-radius: 0 18px 18px 18px;
+    color: var(--text-primary);
+}
+
+.search-result.sent .message-bubble {
+    background-color: var(--primary-light);
+    color: var(--text-light);
+    border-radius: 18px 0 18px 18px;
+}
+
+.search-result .message-time {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+    align-self: flex-end;
+}
+
+.search-result.sent .message-time {
+    color: rgba(255, 255, 255, 0.8);
+}
+
 /* Input */
 .input-area {
     background-color: var(--chat-background);
@@ -542,4 +628,4 @@ body.dark-mode .messages {
 /* Garante que a área de mensagens seja clicável */
 .messages {
     cursor: default;
-}   
+}
