@@ -105,7 +105,7 @@ body {
     font-size: 16px;
 }
 
-/* Search - Atualizado */
+/* Search */
 .search {
     position: relative;
     padding: 16px;
@@ -117,11 +117,25 @@ body {
     width: 100%;
     padding: 14px 20px 14px 50px;
     border-radius: 24px;
-    border: none;
+    border: 1px solid transparent;
     background-color: var(--chat-background);
     font-size: 16px;
     outline: none;
     color: var(--text-primary);
+    transition: border 0.2s ease, padding 0.2s ease;
+}
+
+.search-input:focus {
+    border: 2px solid var(--primary-color) !important;
+    padding: 12px 18px 12px 48px;
+}
+
+body.dark-mode .search-input:focus {
+    border-color: var(--primary-light) !important;
+}
+
+.search-input:focus::placeholder {
+    color: transparent;
 }
 
 .search::before {
@@ -135,6 +149,11 @@ body {
     color: var(--text-secondary);
     font-size: 18px;
     z-index: 1;
+    transition: left 0.2s ease;
+}
+
+.search-input:focus + .search::before {
+    left: 34px;
 }
 
 /* Contacts */
@@ -401,11 +420,21 @@ body.dark-mode .messages {
     flex: 1;
     padding: 14px 20px;
     border-radius: 24px;
-    border: none;
+    border: 1px solid transparent;
     background-color: var(--chat-background);
     font-size: 16px;
     outline: none;
     color: var(--text-primary);
+    transition: border 0.2s ease, padding 0.2s ease;
+}
+
+.search-keyword-input:focus {
+    border: 2px solid var(--primary-color) !important;
+    padding: 12px 18px;
+}
+
+body.dark-mode .search-keyword-input:focus {
+    border-color: var(--primary-light) !important;
 }
 
 .search-button {
@@ -472,7 +501,7 @@ body.dark-mode .messages {
     color: rgba(255, 255, 255, 0.8);
 }
 
-/* Input - Atualizado */
+/* Input Area */
 .input-area {
     background-color: var(--chat-background);
     padding: 12px 16px;
@@ -497,11 +526,25 @@ body.dark-mode .messages {
     flex: 1;
     padding: 14px 20px;
     border-radius: 24px;
-    border: none;
+    border: 1px solid transparent;
     outline: none;
     font-size: 16px;
     background-color: var(--background);
     color: var(--text-primary);
+    transition: border 0.2s ease, padding 0.2s ease;
+}
+
+.message-input:focus {
+    border: 2px solid var(--primary-color) !important;
+    padding: 12px 18px;
+}
+
+body.dark-mode .message-input:focus {
+    border-color: var(--primary-light) !important;
+}
+
+.message-input:focus::placeholder {
+    color: transparent;
 }
 
 .send-button {
@@ -631,6 +674,14 @@ body.dark-mode .messages {
         font-size: 15px;
     }
     
+    .search-input:focus {
+        padding: 10px 14px 10px 42px;
+    }
+    
+    .message-input:focus {
+        padding: 10px 14px;
+    }
+    
     .search::before {
         left: 28px;
         font-size: 16px;
@@ -689,4 +740,46 @@ body.dark-mode .messages {
 /* Garante que a área de mensagens seja clicável */
 .messages {
     cursor: default;
+}
+
+/* Estilo para borda vermelha quando o campo está em foco */
+.search-input:focus {
+    border: 1px solid var(--primary-color) !important;
+    padding: 12px 18px 12px 48px; /* Ajuste o padding para compensar a borda */
+}
+
+.message-input:focus {
+    border: 1px solid var(--primary-color) !important;
+    padding: 12px 18px; /* Ajuste o padding para compensar a borda */
+}
+
+/* Ajuste para o modo escuro */
+body.dark-mode .search-input:focus,
+body.dark-mode .message-input:focus {
+    border-color: var(--primary-light) !important;
+}
+
+/* Transição suave para o efeito de foco */
+.search-input, .message-input {
+    transition: border 0.2s ease, padding 0.2s ease;
+}
+
+/* Estilo para o placeholder quando em foco */
+.search-input:focus::placeholder,
+.message-input:focus::placeholder {
+    color: transparent;
+}
+
+/* Ajuste para o ícone de pesquisa quando o campo está em foco */
+.search-input:focus + .search::before {
+    left: 34px; /* Compensa a borda */
+}
+
+.search-keyword-input:focus {
+    border: 1px solid var(--primary-color) !important;
+    padding: 12px 18px;
+}
+
+body.dark-mode .search-keyword-input:focus {
+    border-color: var(--primary-light) !important;
 }

@@ -512,6 +512,23 @@ document.addEventListener('DOMContentLoaded', function() {
     
     sendButton.addEventListener('click', sendMessage);
     messageInput.addEventListener('keypress', (e) => e.key === 'Enter' && sendMessage());
+
+    // Adiciona borda vermelha ao focar nos campos
+    searchInput.addEventListener('focus', () => {
+        searchInput.classList.add('active-input');
+    });
+
+    searchInput.addEventListener('blur', () => {
+        searchInput.classList.remove('active-input');
+    });
+
+    messageInput.addEventListener('focus', () => {
+        messageInput.classList.add('active-input');
+    });
+
+    messageInput.addEventListener('blur', () => {
+        messageInput.classList.remove('active-input');
+    });
     
     searchInput.addEventListener('input', (e) => {
         const term = e.target.value.toLowerCase();
@@ -609,4 +626,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Inicialização
     loadUser(currentUserPhone);
-});
+}); 
