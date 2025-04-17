@@ -28,7 +28,7 @@ body.dark-mode {
     padding: 0;
     box-sizing: border-box;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    transition: background-color 0.3s, color 0.3s;
+    transition: background-color 0.3s, color 0.3s, border 0.2s, box-shadow 0.2s;
 }
 
 body {
@@ -99,10 +99,33 @@ body {
     width: 100%;
     padding: 12px;
     border-radius: 8px;
-    border: none;
+    border: 1px solid var(--border-color);
     background-color: var(--background);
     color: var(--text-primary);
     font-size: 16px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d63031' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 15px;
+}
+
+#user-switcher:focus {
+    border: 2px solid var(--primary-color) !important;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(214, 48, 49, 0.2);
+}
+
+body.dark-mode #user-switcher {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff5e57' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+body.dark-mode #user-switcher:focus {
+    border-color: var(--primary-light) !important;
+    box-shadow: 0 0 0 2px rgba(255, 94, 87, 0.3);
 }
 
 /* Search */
@@ -117,7 +140,7 @@ body {
     width: 100%;
     padding: 14px 20px 14px 50px;
     border-radius: 24px;
-    border: 1px solid transparent;
+    border: none;
     background-color: var(--chat-background);
     font-size: 16px;
     outline: none;
@@ -420,7 +443,7 @@ body.dark-mode .messages {
     flex: 1;
     padding: 14px 20px;
     border-radius: 24px;
-    border: 1px solid transparent;
+    border: none;
     background-color: var(--chat-background);
     font-size: 16px;
     outline: none;
@@ -526,7 +549,7 @@ body.dark-mode .search-keyword-input:focus {
     flex: 1;
     padding: 14px 20px;
     border-radius: 24px;
-    border: 1px solid transparent;
+    border: none;
     outline: none;
     font-size: 16px;
     background-color: var(--background);
@@ -673,11 +696,11 @@ body.dark-mode .message-input:focus {
         padding: 12px 16px 12px 44px;
         font-size: 15px;
     }
-    
+
     .search-input:focus {
         padding: 10px 14px 10px 42px;
     }
-    
+
     .message-input:focus {
         padding: 10px 14px;
     }
@@ -742,44 +765,15 @@ body.dark-mode .message-input:focus {
     cursor: default;
 }
 
-/* Estilo para borda vermelha quando o campo está em foco */
-.search-input:focus {
-    border: 1px solid var(--primary-color) !important;
-    padding: 12px 18px 12px 48px; /* Ajuste o padding para compensar a borda */
+/* Loading e Error states */
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-secondary);
 }
 
-.message-input:focus {
-    border: 1px solid var(--primary-color) !important;
-    padding: 12px 18px; /* Ajuste o padding para compensar a borda */
-}
-
-/* Ajuste para o modo escuro */
-body.dark-mode .search-input:focus,
-body.dark-mode .message-input:focus {
-    border-color: var(--primary-light) !important;
-}
-
-/* Transição suave para o efeito de foco */
-.search-input, .message-input {
-    transition: border 0.2s ease, padding 0.2s ease;
-}
-
-/* Estilo para o placeholder quando em foco */
-.search-input:focus::placeholder,
-.message-input:focus::placeholder {
-    color: transparent;
-}
-
-/* Ajuste para o ícone de pesquisa quando o campo está em foco */
-.search-input:focus + .search::before {
-    left: 34px; /* Compensa a borda */
-}
-
-.search-keyword-input:focus {
-    border: 1px solid var(--primary-color) !important;
-    padding: 12px 18px;
-}
-
-body.dark-mode .search-keyword-input:focus {
-    border-color: var(--primary-light) !important;
+.error {
+    text-align: center;
+    padding: 20px;
+    color: var(--primary-color);
 }

@@ -48,7 +48,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Função para mostrar a tela inicial
     function showWelcomeScreen() {
-        // Limpa o container de forma segura
         while (messagesContainer.firstChild) {
             messagesContainer.removeChild(messagesContainer.firstChild);
         }
@@ -138,7 +137,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await response.json();
             
             if (data && data.mensagem) {
-                return data; // Retorna os dados sem modificação, o highlight será feito no render
+                // Formata os resultados para o formato esperado pelo frontend
+                const formattedResults = data.mensagem.map(msg => ({
+                    sender: msg.remetente === currentUser.account ? 'me' : 'other',
+                    content: msg.mensagem,
+                    time: msg.horario
+                }));
+                
+                return { mensagem: formattedResults };
             }
             return data;
         } catch (error) {
@@ -173,6 +179,9 @@ document.addEventListener('DOMContentLoaded', function() {
             currentUserPhone = phone;
             isSearchActive = false;
             
+            // Adiciona borda vermelha durante o carregamento
+            userSwitcher.style.border = '2px solid var(--primary-color)';
+            
             const [userData, userProfile] = await Promise.all([
                 fetchUserData(phone),
                 fetchUserProfile(phone)
@@ -184,8 +193,14 @@ document.addEventListener('DOMContentLoaded', function() {
             updateProfileInfo(currentUser);
             await loadContacts();
             
+            // Remove a borda vermelha após carregar
+            userSwitcher.style.border = '';
+            
         } catch (error) {
             console.error('Erro loadUser:', error);
+            // Mantém a borda vermelha em caso de erro
+            userSwitcher.style.border = '2px solid var(--primary-color)';
+            
             // Limpa o container de forma segura
             while (contactsContainer.firstChild) {
                 contactsContainer.removeChild(contactsContainer.firstChild);
@@ -508,27 +523,24 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event Listeners
     darkModeToggle.addEventListener('click', toggleDarkMode);
     
-    userSwitcher.addEventListener('change', (e) => loadUser(e.target.value));
+    userSwitcher.addEventListener('focus', () => {
+        userSwitcher.style.border = '2px solid var(--primary-color)';
+    });
+
+    userSwitcher.addEventListener('blur', () => {
+        userSwitcher.style.border = '';
+    });
+
+    userSwitcher.addEventListener('change', (e) => {
+        userSwitcher.style.border = '2px solid var(--primary-color)';
+        setTimeout(() => {
+            userSwitcher.style.border = '';
+        }, 1000);
+        loadUser(e.target.value);
+    });
     
     sendButton.addEventListener('click', sendMessage);
     messageInput.addEventListener('keypress', (e) => e.key === 'Enter' && sendMessage());
-
-    // Adiciona borda vermelha ao focar nos campos
-    searchInput.addEventListener('focus', () => {
-        searchInput.classList.add('active-input');
-    });
-
-    searchInput.addEventListener('blur', () => {
-        searchInput.classList.remove('active-input');
-    });
-
-    messageInput.addEventListener('focus', () => {
-        messageInput.classList.add('active-input');
-    });
-
-    messageInput.addEventListener('blur', () => {
-        messageInput.classList.remove('active-input');
-    });
     
     searchInput.addEventListener('input', (e) => {
         const term = e.target.value.toLowerCase();
@@ -626,4 +638,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Inicialização
     loadUser(currentUserPhone);
-}); 
+});
