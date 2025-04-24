@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Funções para consumir a API
     async function fetchUserData(phone) {
         try {
-            const response = await fetch(`http://localhost:3030/v1/whatsapp/user/${phone}`);
+            const response = await fetch(`https://api-whatsapp-2fhu.onrender.com/v1/whatsapp/user/${phone}`);
             if (!response.ok) throw new Error('Erro ao carregar dados do usuário');
             return await response.json();
         } catch (error) {
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function fetchUserProfile(phone) {
         try {
-            const response = await fetch(`http://localhost:3030/v1/whatsapp/user/profile/${phone}`);
+            const response = await fetch(`https://api-whatsapp-2fhu.onrender.com/v1/whatsapp/user/profile/${phone}`);
             if (!response.ok) throw new Error('Erro ao carregar perfil');
             return await response.json();
         } catch (error) {
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function fetchUserContacts(phone) {
         try {
-            const response = await fetch(`http://localhost:3030/v1/whatsapp/contatos/${phone}`);
+            const response = await fetch(`https://api-whatsapp-2fhu.onrender.com/v1/whatsapp/contatos/${phone}`);
             if (!response.ok) throw new Error('Erro ao carregar contatos');
             return await response.json();
         } catch (error) {
@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function fetchConversation(phone, contactName) {
         try {
-            const response = await fetch(`http://localhost:3030/v1/whatsapp/conversas/usuario?numeroTelefone=${phone}&contato=${encodeURIComponent(contactName)}`);
+            const response = await fetch(`https://api-whatsapp-2fhu.onrender.com/v1/whatsapp/conversas/usuario?numeroTelefone=${phone}&contato=${encodeURIComponent(contactName)}`);
             if (!response.ok) throw new Error('Erro ao carregar conversa');
             return await response.json();
         } catch (error) {
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function searchInMessages(phone, contactName, keyword) {
         try {
-            const response = await fetch(`http://localhost:3030/v1/whatsapp/conversas?numeroTelefone=${phone}&nomeContato=${encodeURIComponent(contactName)}&palavraChave=${encodeURIComponent(keyword)}`);
+            const response = await fetch(`https://api-whatsapp-2fhu.onrender.com/v1/whatsapp/conversas?numeroTelefone=${phone}&nomeContato=${encodeURIComponent(contactName)}&palavraChave=${encodeURIComponent(keyword)}`);
             if (!response.ok) throw new Error('Erro na pesquisa');
             const data = await response.json();
             
